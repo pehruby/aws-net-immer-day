@@ -122,12 +122,6 @@ resource "aws_route_table" "VPC_B_pri_rt" {
     nat_gateway_id = aws_nat_gateway.VPC_B_natgw.id
   }
 
-  # peering to VPC A
-  route {
-    cidr_block = "10.0.0.0/16"
-    vpc_peering_connection_id = aws_vpc_peering_connection.VPC_A-B_peering_connection.id
-  }
-
   tags = {
     Name = "VPC B Private Route Table"
   }
