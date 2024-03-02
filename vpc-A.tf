@@ -267,6 +267,7 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
+/*
 # Restrict access to S3 bucket
 resource "aws_vpc_endpoint_policy" "my_policy" {
     vpc_endpoint_id = aws_vpc_endpoint.s3.id
@@ -286,4 +287,5 @@ resource "aws_vpc_endpoint_policy" "my_policy" {
         ]
     })
 }
+*/
 
