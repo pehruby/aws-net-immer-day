@@ -47,6 +47,26 @@ resource "aws_subnet" "VPC_A_pri_sn_b" {
   }
 }
 
+resource "aws_subnet" "VPC_A_tgw_sn_a" {
+  vpc_id     = aws_vpc.VPC_A.id
+  cidr_block = "10.0.5.0/28"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "VPC A TGW Subnet AZ1"
+  }
+}
+
+resource "aws_subnet" "VPC_A_tgw_sn_b" {
+  vpc_id     = aws_vpc.VPC_A.id
+  cidr_block = "10.0.5.16/28"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "VPC A TGW Subnet AZ2"
+  }
+}
+
 # if no entries are specified, it is only default entry which denies all created
 resource "aws_network_acl" "VPC_A_wls_acl" {
   vpc_id = aws_vpc.VPC_A.id
@@ -120,6 +140,19 @@ resource "aws_route_table" "VPC_A_pri_rt" {
   route {
     cidr_block = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.VPC_A_natgw.id
+  }
+
+
+  # route to TGW
+  route {
+    cidr_block = "10.1.0.0/16"
+    transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+  }
+
+  # route to TGW
+  route {
+    cidr_block = "10.2.0.0/16"
+    transit_gateway_id = aws_ec2_transit_gateway.tgw.id
   }
 
 
