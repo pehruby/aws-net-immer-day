@@ -267,4 +267,23 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
+# Restrict access to S3 bucket
+resource "aws_vpc_endpoint_policy" "my_policy" {
+    vpc_endpoint_id = aws_vpc_endpoint.s3.id
+    policy = jsonencode({
+        "Version": "2008-10-17",
+        "Statement": [
+            {
+            "Sid": "ReadWriteAccess",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:Get*",
+                "s3:List*"
+            ],
+            "Resource": "*"
+            }
+        ]
+    })
+}
 
