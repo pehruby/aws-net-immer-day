@@ -1,0 +1,85 @@
+
+resource "aws_security_group" "VPC_A_sg_server1" {
+  vpc_id = aws_vpc.VPC_A.id
+  name = "VPC A Security Group"
+  description = "VPC A Security Group"
+
+  
+  tags = {
+    Name = "VPC A Security Group"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_icmp_ipv4" {
+  security_group_id = aws_security_group.VPC_A_sg_server1.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = -1
+  ip_protocol       = "icmp"
+  to_port           = -1
+}
+
+resource "aws_vpc_security_group_egress_rule" "VPC_A_eg_traffic_ipv4" {
+  security_group_id = aws_security_group.VPC_A_sg_server1.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1" # semantically equivalent to all ports
+}
+
+/*
+resource "aws_network_interface" "iface_server1" {
+  subnet_id   = aws_subnet.VPC_A_pub_sn_b.id
+  security_groups = [ aws_security_group.VPC_A_sg_server1.id ]
+
+  tags = {
+    Name = "Interface for VPC A Public AZ2 Server"
+  }
+}
+*/
+
+
+
+resource "aws_instance" "VPC_A_pub_server" {
+  ami           = "ami-0e731c8a588258d0d"
+  instance_type = "t2.micro"
+  iam_instance_profile = aws_iam_instance_profile.server_ias_profile.name
+  private_ip = "10.0.2.100"
+  vpc_security_group_ids = [ aws_security_group.VPC_A_sg_server1.id ]
+  subnet_id   = aws_subnet.VPC_A_pub_sn_b.id
+  associate_public_ip_address = true
+
+
+  tags = {
+    Name = "VPC A Public AZ2 Server"
+  }
+}
+
+
+
+/*
+# Create an EIP
+resource "aws_eip" "server1" {
+  vpc = true
+}
+
+
+# Associate the EIP with the instance
+resource "aws_eip_association" "server1" {
+  instance_id   = aws_instance.VPC_A_pub_server.id
+  allocation_id = aws_eip.server1.id
+}
+
+*/
+
+
+resource "aws_instance" "VPC_A_pri_server" {
+  ami           = "ami-0e731c8a588258d0d"
+  instance_type = "t2.micro"
+  iam_instance_profile = aws_iam_instance_profile.server_ias_profile.name
+  private_ip = "10.0.1.100"
+  vpc_security_group_ids = [  aws_security_group.VPC_A_sg_server1.id]
+  subnet_id   = aws_subnet.VPC_A_pri_sn_a.id
+
+
+  tags = {
+    Name = "VPC A Private AZ1 Server"
+  }
+}
