@@ -1,6 +1,7 @@
 
 resource "aws_s3_bucket" "s3_net_day" {
   bucket = "networking-day"
+  force_destroy = true
 }
 
 /*
