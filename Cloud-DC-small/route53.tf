@@ -1,3 +1,7 @@
+# VPC uses standard Route 53 DNS for VPC/Internet resolution, 
+# resulution requests related to example.corp are forwarded to "On-prem" DNS 172.16.1.200
+
+
 resource "aws_route53_resolver_endpoint" "nd_outbound" {
   name      = "NetworkingDayOutbound"
   direction = "OUTBOUND"

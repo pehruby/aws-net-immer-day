@@ -90,8 +90,9 @@ resource "aws_instance" "VPC_OP_pub_server" {
   ami           = "ami-014d544cfef21b42d"
   instance_type = "t2.micro"
   iam_instance_profile = aws_iam_instance_profile.op_server_ias_profile.name
-  # source/destination checking must be disabled on ENI !!!
   private_ip = "172.16.0.100"
+  # source/destination checking must be disabled on ENI !!!
+  source_dest_check = false
   vpc_security_group_ids = [ aws_security_group.VPC_OP_sg_gw_server.id ]
   subnet_id   = aws_subnet.VPC_OP_pub_sn_a.id
   associate_public_ip_address = true
