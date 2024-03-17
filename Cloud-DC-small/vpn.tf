@@ -8,7 +8,7 @@ resource "aws_vpn_gateway" "vpn_gateway" {
 resource "aws_customer_gateway" "on_oprem" {
   bgp_asn    = 65000
   # IP address must by changed, dynamic public IP of remote site must be used
-  ip_address = "54.236.23.229"
+  ip_address = "52.91.174.4"
   type       = "ipsec.1"
 }
 

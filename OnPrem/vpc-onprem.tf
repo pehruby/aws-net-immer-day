@@ -95,6 +95,14 @@ resource "aws_route_table" "VPC_OP_pri_rt" {
     nat_gateway_id = aws_nat_gateway.VPC_OP_natgw.id
   }
 
+  # route from "on-prem" to AWS via Customer Gateway server
+  # source/destination checking must be disabled on ENI !!! 
+  route {
+    cidr_block = "10.0.0.0/8"
+    network_interface_id = aws_instance.VPC_OP_pub_server.primary_network_interface_id
+    #instance_id = aws_instance.VPC_OP_pub_server.id
+  }
+
 
 
   tags = {
@@ -178,7 +186,7 @@ resource "aws_vpc_endpoint" "kms2" {
   vpc_endpoint_type = "Interface"
   service_name = "com.amazonaws.us-east-1.kms"
   private_dns_enabled = true
-  subnet_ids        = [aws_subnet.VPC_OP_pri_sn_a.id, aws_subnet.VPC_OP_pri_sn_a.id]
+  subnet_ids        = [aws_subnet.VPC_OP_pri_sn_a.id]
   security_group_ids = [ aws_security_group.VPC_OP_kms_sg.id ]
   dns_options {
     dns_record_ip_type = "ipv4"
