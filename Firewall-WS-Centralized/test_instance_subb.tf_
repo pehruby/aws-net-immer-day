@@ -1,0 +1,22 @@
+# Spoke VPC B Test Instance 1 UserData is for:
+# Lab - Custom Suricata Rules 
+
+resource "aws_instance" "sn_B_test" {
+  ami           = "ami-014d544cfef21b42d"
+  instance_type = "t2.micro"
+  iam_instance_profile = aws_iam_instance_profile.server_ias_profile
+  # private_ip = "172.16.0.100"
+  source_dest_check = false
+  vpc_security_group_ids = [ aws_security_group.VPC_B_sg_sn_B.id ]
+  subnet_id   = aws_subnet.VPC_B_wl_sn_b.id
+  associate_public_ip_address = true
+
+
+  tags = {
+    Name = "AnfwDemo-SpokeVPCA-TestInstance1"
+  }
+
+  depends_on = [ aws_instance.sn_C_ftp ]
+
+  user_data = base64encode(templatefile("user_data_ti_subb.sh"))
+}
