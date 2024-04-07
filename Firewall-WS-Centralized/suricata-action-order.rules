@@ -1,0 +1,5 @@
+drop tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"Drop established TCP:80"; flow: from_client,established; sid:172190; priority:5; rev:1;)
+pass http $HOME_NET any -> $EXTERNAL_NET 80 (http.host; dotprefix; content:".compute.internal"; endswith; msg:"Allowed HTTP domain"; priority:10; sid:172191; rev:1;)
+pass tcp $HOME_NET any -> $EXTERNAL_NET 22 (msg:"Allow TCP 22"; sid:172192; rev:1;)
+pass tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Allow TCP 443"; sid:172193; rev:1;)
+drop tcp $HOME_NET any -> $EXTERNAL_NET !80 (msg:"Drop All non-TCP:80"; flow: from_client,established; sid:172194; priority:2; rev:1;)

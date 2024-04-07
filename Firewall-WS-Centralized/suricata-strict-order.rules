@@ -1,0 +1,5 @@
+alert http $HOME_NET any ->  $EXTERNAL_NET 80 (http.host; dotprefix; content:".compute.internal"; endswith; msg:"Allowed HTTP domain through sid 172192"; sid:172191; rev:1;)
+pass http $HOME_NET any ->  $EXTERNAL_NET 80 (http.host; dotprefix; content:".compute.internal"; endswith; msg:"Allowed HTTP domain"; sid:172192; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 22 (msg:"Allow TCP 22 through sid 172194"; sid:172193; rev:1;)
+pass tcp $HOME_NET any -> $EXTERNAL_NET 22 (msg:"Allow TCP 22"; sid:172194; rev:1;)
+pass tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"Allow TCP 443"; sid:172195; rev:1;)
