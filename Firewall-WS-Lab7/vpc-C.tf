@@ -100,6 +100,12 @@ resource "aws_route_table" "VPC_C_pub_a" {
   }
 }
 
+# Assoc VPC C public RT to public SN
+resource "aws_route_table_association" "VPC_C_pub_rt_to_a" {
+  subnet_id      = aws_subnet.VPC_C_pub_a.id
+  route_table_id = aws_route_table.VPC_C_pub_a.id
+}
+
 
 
 # AZ B
@@ -208,7 +214,7 @@ resource "aws_security_group" "VPC_C_sg_alb" {
 
 resource "aws_vpc_security_group_ingress_rule" "sg_alb_ingress_1" {
   security_group_id = aws_security_group.VPC_C_sg_alb.id
-  cidr_ipv4         = "172.31.0.0/16"
+  cidr_ipv4         = "0.0.0.0/0"
   from_port         = 80
   ip_protocol       = "tcp"
   to_port           = 80
@@ -216,7 +222,7 @@ resource "aws_vpc_security_group_ingress_rule" "sg_alb_ingress_1" {
 
 resource "aws_vpc_security_group_ingress_rule" "sg_alb_ingress_2" {
   security_group_id = aws_security_group.VPC_C_sg_alb.id
-  cidr_ipv4         = "172.31.0.0/16"
+  cidr_ipv4         = "194.228.18.0/24"
   from_port         = 443
   ip_protocol       = "tcp"
   to_port           = 443

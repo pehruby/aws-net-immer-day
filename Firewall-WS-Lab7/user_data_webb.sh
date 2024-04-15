@@ -26,6 +26,6 @@ cat <<EOT >> /var/www/html/index.html
   </body>
 </html>
 EOT
-# Enable and start httpd
+# Enable and start httpd 
 systemctl enable httpd;
 systemctl start httpd; 
