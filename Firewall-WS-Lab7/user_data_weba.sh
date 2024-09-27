@@ -22,7 +22,7 @@ cat <<EOT >> /var/www/html/index.html
   </head>
   <body>
     <h1>Welcome to AWS Network Firewall Workshop:</h1>
-    <h2>This is a simple web server running in $instance_az.</h2>
+    <h2>This is a simple web server running in $instance_az. </h2>
   </body>
 </html>
 EOT

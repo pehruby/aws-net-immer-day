@@ -71,7 +71,7 @@ resource "aws_route_table" "VPC_C_pri_a" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.VPC_C_natgw_a.id
+    vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.central.firewall_status[0].sync_states): ss.attachment[0].endpoint_id if ss.availability_zone == "us-east-1a"],0)
   }
 
   tags = {
@@ -93,6 +93,11 @@ resource "aws_route_table" "VPC_C_pub_a" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.VPC_C_igw.id
+  }
+  # to FW endpoint
+  route {
+    cidr_block = "172.31.121.0/24"
+    vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.central.firewall_status[0].sync_states): ss.attachment[0].endpoint_id if ss.availability_zone == "us-east-1a"],0)
   }
 
   tags = {
@@ -161,9 +166,10 @@ resource "aws_route_table" "VPC_C_pri_b" {
   vpc_id = aws_vpc.VPC_C.id
 
 
+  # to FW endpoint
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.VPC_C_natgw_b.id
+    vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.central.firewall_status[0].sync_states): ss.attachment[0].endpoint_id if ss.availability_zone == "us-east-1b"],0)
   }
 
   tags = {
@@ -185,6 +191,10 @@ resource "aws_route_table" "VPC_C_pub_b" {
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.VPC_C_igw.id
+  }
+  route {
+    cidr_block = "172.31.122.0/24"
+    vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.central.firewall_status[0].sync_states): ss.attachment[0].endpoint_id if ss.availability_zone == "us-east-1b"],0)
   }
 
   tags = {
@@ -265,6 +275,15 @@ resource "aws_vpc_security_group_ingress_rule" "sg_web_ingress_2" {
   to_port           = -1
 }
 
+/*
+resource "aws_vpc_security_group_ingress_rule" "sg_web_ingress_3" {
+  security_group_id = aws_security_group.VPC_C_sg_web.id
+  cidr_ipv4         = "0.0.0.0/0"
+  from_port         = 80
+  ip_protocol       = "tcp"
+  to_port           = 80
+}
+*/
 
 resource "aws_vpc_security_group_egress_rule" "sg_web_C_egress_1" {
   security_group_id = aws_security_group.VPC_C_sg_web.id
@@ -354,3 +373,84 @@ resource "aws_lb_listener" "front_end" {
     target_group_arn = aws_lb_target_group.tg1.arn
   }
 }
+
+
+# ---------------------------------------------------------------
+# FW subnets
+
+# public subnet
+resource "aws_subnet" "VPC_C_fw_a" {
+  vpc_id     = aws_vpc.VPC_C.id
+  cidr_block = "172.31.110.0/28"
+  availability_zone = "us-east-1a"
+
+  tags = {
+    Name = "AnfwDemo-IngressVPC-FWSubnetA"
+  }
+}
+
+resource "aws_subnet" "VPC_C_fw_b" {
+  vpc_id     = aws_vpc.VPC_C.id
+  cidr_block = "172.31.110.16/28"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "AnfwDemo-IngressVPC-FWSubnetB"
+  }
+}
+
+# RT for FW subnet A
+resource "aws_route_table" "VPC_C_fw_a" {
+  vpc_id = aws_vpc.VPC_C.id
+
+
+  # to FW endpoint
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.VPC_C_natgw_a.id
+  }
+  /*
+  route {
+    cidr_block = "172.31.0.0/16"
+  }
+  */
+
+  tags = {
+    Name = "AnfwDemo-IngressVPC-FW-RtA"
+  }
+}
+
+# Assoc pri RT to FW subnet A
+resource "aws_route_table_association" "VPC_C_fw_rt_to_a" {
+  subnet_id      = aws_subnet.VPC_C_fw_a.id
+  route_table_id = aws_route_table.VPC_C_fw_a.id
+}
+
+
+# RT for FW subnet B
+resource "aws_route_table" "VPC_C_fw_b" {
+  vpc_id = aws_vpc.VPC_C.id
+
+
+  # to FW endpoint
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.VPC_C_natgw_b.id
+  }
+  /*
+  route {
+    cidr_block = "172.31.0.0/16"
+  }
+  */
+
+  tags = {
+    Name = "AnfwDemo-IngressVPC-FW-RtB"
+  }
+}
+
+# Assoc pri RT to FW subnet A
+resource "aws_route_table_association" "VPC_C_fw_rt_to_b" {
+  subnet_id      = aws_subnet.VPC_C_fw_b.id
+  route_table_id = aws_route_table.VPC_C_fw_b.id
+}
+

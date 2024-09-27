@@ -8,7 +8,7 @@ resource "aws_instance" "web_A" {
   user_data_replace_on_change = true
   # associate_public_ip_address = true
 
-
+  depends_on = [ aws_eip.eip_natgw_a, aws_networkfirewall_firewall.central ]
   tags = {
     Name = "AnfwDemo-IngressVPC-WebInstanceA"
   }
@@ -24,6 +24,7 @@ resource "aws_instance" "web_B" {
   subnet_id   = aws_subnet.VPC_C_pri_b.id
   user_data_replace_on_change = true
   # associate_public_ip_address = true
+  depends_on = [ aws_eip.eip_natgw_b, aws_networkfirewall_firewall.central ]
 
 
   tags = {
