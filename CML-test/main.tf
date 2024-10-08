@@ -1,3 +1,4 @@
+/*
 terraform {
   required_providers {
     aws = {
@@ -10,5 +11,18 @@ terraform {
 }
 
 provider "aws" {
-  region  = local.cfg.aws.region
+  region = local.cfg.aws.region
+}
+*/
+
+
+module "secrets" {
+  source = "./modules/secrets"
+  cfg    = local.raw_cfg
+}
+
+module "deploy" {
+  source = "./modules/deploy"
+  cfg    = local.cfg
+  extras = local.extras
 }

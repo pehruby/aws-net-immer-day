@@ -1,5 +1,5 @@
 
-
+/*
 resource "aws_iam_role" "ec2_role" {
   name = "NetworkingWorkshopEC2Role2"
   path = "/"
@@ -31,5 +31,5 @@ resource "aws_iam_instance_profile" "server_ias_profile" {
   role = "${aws_iam_role.ec2_role.name}"
 }
 
-
+*/
 

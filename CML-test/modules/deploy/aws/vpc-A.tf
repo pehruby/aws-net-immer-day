@@ -10,7 +10,7 @@ resource "aws_vpc" "VPC_A" {
 resource "aws_subnet" "VPC_A_pub_sn_a" {
   vpc_id     = aws_vpc.VPC_A.id
   cidr_block = "10.0.0.0/24"
-  availability_zone = local.cfg.aws.availability_zone
+  availability_zone = var.options.cfg.aws.availability_zone
 
   tags = {
     Name = "VPC A Public Subnet AZ1"
@@ -20,7 +20,7 @@ resource "aws_subnet" "VPC_A_pub_sn_a" {
 resource "aws_subnet" "VPC_A_pri_sn_a" {
   vpc_id     = aws_vpc.VPC_A.id
   cidr_block = "10.0.1.0/24"
-  availability_zone = local.cfg.aws.availability_zone
+  availability_zone = var.options.cfg.aws.availability_zone
 
   tags = {
     Name = "VPC A Private Subnet AZ1"
@@ -31,7 +31,7 @@ resource "aws_subnet" "VPC_A_pri_sn_a" {
 resource "aws_subnet" "VPC_A_tgw_sn_a" {
   vpc_id     = aws_vpc.VPC_A.id
   cidr_block = "10.0.5.0/28"
-  availability_zone = local.cfg.aws.availability_zone
+  availability_zone = var.options.cfg.aws.availability_zone
 
   tags = {
     Name = "VPC A TGW Subnet AZ1"
@@ -96,6 +96,7 @@ resource "aws_route_table" "VPC_A_pub_rt" {
   }
 }
 
+/*
 # RT for private subnets
 resource "aws_route_table" "VPC_A_pri_rt" {
   vpc_id = aws_vpc.VPC_A.id
@@ -111,6 +112,7 @@ resource "aws_route_table" "VPC_A_pri_rt" {
     Name = "VPC A Private Route Table"
   }
 }
+*/
 
 # Assoc VPC A public RT to public SN AZ1
 resource "aws_route_table_association" "VPC_A_pub_rt_to_a" {
@@ -118,12 +120,13 @@ resource "aws_route_table_association" "VPC_A_pub_rt_to_a" {
   route_table_id = aws_route_table.VPC_A_pub_rt.id
 }
 
-
+/*
 # Assoc VPC A private RT to private SN AZ1
 resource "aws_route_table_association" "VPC_A_pri_rt_to_a" {
   subnet_id      = aws_subnet.VPC_A_pri_sn_a.id
   route_table_id = aws_route_table.VPC_A_pri_rt.id
 }
+*/
 
 
 
@@ -136,9 +139,10 @@ resource "aws_internet_gateway" "VPC_A_igw" {
   }
 }
 
+/*
 # public IP for NAT
 resource "aws_eip" "eip_natgw" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name = "NAT GW IP"
   }
@@ -157,6 +161,7 @@ resource "aws_nat_gateway" "VPC_A_natgw" {
   # on the Internet Gateway for the VPC.
   depends_on = [aws_internet_gateway.VPC_A_igw]
 }
+*/
 
 # Security group for KMS
 resource "aws_security_group" "kms_sg" {
@@ -186,9 +191,9 @@ resource "aws_vpc_security_group_egress_rule" "eg_traffic_ipv4" {
 resource "aws_vpc_endpoint" "kms2" {
   vpc_id       = aws_vpc.VPC_A.id
   vpc_endpoint_type = "Interface"
-  service_name = "com.amazonaws.us-east-1.kms"
+  service_name = "com.amazonaws.${var.options.cfg.aws.region}.kms"
   private_dns_enabled = true
-  subnet_ids        = [aws_subnet.VPC_A_pri_sn_a.id]
+  subnet_ids        = [aws_subnet.VPC_A_pub_sn_a.id]
   security_group_ids = [ aws_security_group.kms_sg.id ]
   dns_options {
     dns_record_ip_type = "ipv4"
@@ -201,8 +206,9 @@ resource "aws_vpc_endpoint" "kms2" {
 resource "aws_vpc_endpoint" "s3" {
   vpc_id       = aws_vpc.VPC_A.id
   vpc_endpoint_type = "Gateway"
-  service_name = "com.amazonaws.us-east-1.s3"
-  route_table_ids        = [aws_route_table.VPC_A_pri_rt.id, aws_route_table.VPC_A_pub_rt.id]
+  service_name = "com.amazonaws.${var.options.cfg.aws.region}.s3"
+  #route_table_ids        = [aws_route_table.VPC_A_pri_rt.id, aws_route_table.VPC_A_pub_rt.id]
+  route_table_ids        = [aws_route_table.VPC_A_pub_rt.id]
   tags = {
     Name = "VPC A S3 Endpoint"
   }
